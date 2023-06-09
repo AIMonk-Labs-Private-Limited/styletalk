@@ -1,5 +1,5 @@
-from core.networks.generator import ContentEncoder, StyleEncoder, Decoder
-from core.networks.disentangle_decoder import DisentangleDecoder
+from src.core.networks.generator import ContentEncoder, StyleEncoder, Decoder
+from src.core.networks.disentangle_decoder import DisentangleDecoder
 
 def get_network(name: str):
     obj = globals().get(name)

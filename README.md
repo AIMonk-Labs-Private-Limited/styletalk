@@ -34,6 +34,7 @@ conda activate styletalk
 pip install -r requirements.txt
 conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=11.1 -c pytorch -c conda-forge
 conda update ffmpeg
+pip install opencv-python-headless==4.4.0.46
 ```
 
 The code has been test on CUDA 11.1, GPU RTX 3090.

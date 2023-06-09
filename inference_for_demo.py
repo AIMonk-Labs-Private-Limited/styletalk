@@ -8,10 +8,10 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 from PIL import Image
-
-from core.networks.styletalk import StyleTalk
-from core.utils import get_audio_window, get_pose_params, get_video_style_clip, obtain_seq_index
-from configs.default import get_cfg_defaults
+#sys.path.append("StyleTalk/models/styletalk/1/src")
+from src.core.networks.styletalk import StyleTalk
+from src.core.utils import get_audio_window, get_pose_params, get_video_style_clip, obtain_seq_index
+from src.configs.default import get_cfg_defaults
 
 
 @torch.no_grad()
@@ -80,10 +80,10 @@ def render_video(
 
 @torch.no_grad()
 def get_netG(checkpoint_path):
-    from generators.face_model import FaceGenerator
+    from src.generators.face_model import FaceGenerator
     import yaml
 
-    with open("configs/renderer_conf.yaml", "r") as f:
+    with open("models/styletalk/1/src/configs/renderer_conf.yaml", "r") as f:
         renderer_config = yaml.load(f, Loader=yaml.FullLoader)
 
     renderer = FaceGenerator(**renderer_config).to(torch.cuda.current_device())
@@ -99,9 +99,20 @@ def get_netG(checkpoint_path):
 @torch.no_grad()
 def generate_expression_params(
     cfg, audio_path, style_clip_path, pose_path, output_path, content_encoder, style_encoder, decoder
-):
-    with open(audio_path, "r") as f:
-        audio = json.load(f)
+):  
+    if audio_path[-3:]=='txt':
+        with open(audio_path,'r') as f:
+            audio=[]
+            audio_temp=f.readlines()
+            for i in audio_temp[:-1]:
+                k=i.replace('\n','')
+                audio.append(int(k))
+            audio.append(int(audio_temp[-1]))
+    else:
+        with open(audio_path, "r") as f:
+            audio = json.load(f)
+
+
 
     audio_win = get_audio_window(audio, cfg.WIN_SIZE)
     audio_win = torch.tensor(audio_win).cuda()
@@ -127,8 +138,8 @@ def generate_expression_params(
     if len(pose) >= len(gen_exp):
         selected_pose = pose[: len(gen_exp)]
     else:
-        selected_pose = pose[-1].unsqueeze(0).repeat(len(gen_exp), 1)
-        selected_pose[: len(pose)] = pose
+        selected_pose = torch.from_numpy(pose[-1]).unsqueeze(0).repeat(len(gen_exp), 1)
+        selected_pose[: len(pose)] = torch.from_numpy(pose)
 
     gen_exp_pose = np.concatenate((gen_exp, selected_pose), axis=1)
     np.save(output_path, gen_exp_pose)
@@ -139,13 +150,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--styletalk_checkpoint",
         type=str,
-        default="checkpoints/styletalk_checkpoint.pth",
+        default="src/checkpoints/styletalk_checkpoint.pth",
         help="the checkpoint to test with",
     )
     parser.add_argument(
         "--renderer_checkpoint",
         type=str,
-        default="checkpoints/renderer_checkpoint.pt",
+        default="src/checkpoints/renderer_checkpoint.pt",
         help="renderer checkpoint",
     )
     parser.add_argument("--audio_path", type=str, default="", help="path for phoneme")
@@ -164,7 +175,7 @@ if __name__ == "__main__":
     # load checkpoint
     with torch.no_grad():
         content_encoder, style_encoder, decoder = get_eval_model(cfg)
-        exp_param_path = f"{args.output_path[:-4]}.npy"
+        exp_param_path = f"models/styletalk/1/src/temp_files/output{args.output_path[:-4]}.npy"
         generate_expression_params(
             cfg,
             args.audio_path,

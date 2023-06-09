@@ -2,13 +2,13 @@ import os
 import argparse
 from collections import defaultdict
 import logging
-
+import pickle
 import numpy as np
 import torch
 from torch import nn
 from scipy.io import loadmat
 
-from configs.default import get_cfg_defaults
+from src.configs.default import get_cfg_defaults
 
 
 def _reset_parameters(model):
@@ -56,6 +56,7 @@ def get_face3d_clip(video_name, video_root_dir, num_frames, start_idx, dtype=tor
         _type_: _description_
     """
     video_path = os.path.join(video_root_dir, video_name)
+    import pdb; pdb.set_trace()
     if video_path[-3:] == "mat":
         face3d_all = loadmat(video_path)["coeff"]
         face3d_exp = face3d_all[:, 80:144]  # expression 3DMM range
@@ -87,6 +88,10 @@ def get_video_style_clip(video_path, style_max_len, start_idx="random", dtype=to
         face3d_exp = face3d_all[:, 80:144]  # expression 3DMM range
     elif video_path[-3:] == "txt":
         face3d_exp = np.loadtxt(video_path)
+    elif video_path[-3:] == "pkl":
+        f=open(video_path,'rb')
+        pkl=pickle.load(f)
+        face3d_exp = [pkl['fitting_res'][i]['exp'][0] for i in range(len(pkl['fitting_res']))]
     else:
         raise ValueError("Invalid 3DMM file extension")
 

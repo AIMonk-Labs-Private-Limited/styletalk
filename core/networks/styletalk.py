@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from core.networks import get_network
+from src.core.networks import get_network
 
 
 class StyleTalk(nn.Module):
