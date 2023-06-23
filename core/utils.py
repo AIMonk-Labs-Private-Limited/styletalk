@@ -3,6 +3,7 @@ import argparse
 from collections import defaultdict
 import logging
 import pickle
+
 import numpy as np
 import torch
 from torch import nn
@@ -83,9 +84,13 @@ def get_face3d_clip(video_name, video_root_dir, num_frames, start_idx, dtype=tor
 
 
 def get_video_style_clip(video_path, style_max_len, start_idx="random", dtype=torch.float32):
-    if video_path[-3:] == "mat":
+    if True:
+        face3d_all = loadmat(video_path)["coeff_3dmm"]
+        face3d_exp = face3d_all[:, 0:64]
+    elif video_path[-3:] == "mat":
         face3d_all = loadmat(video_path)["coeff"]
-        face3d_exp = face3d_all[:, 80:144]  # expression 3DMM range
+        face3d_exp = face3d_all[:, 80:144]# expression 3DMM range
+        
     elif video_path[-3:] == "txt":
         face3d_exp = np.loadtxt(video_path)
     elif video_path[-3:] == "pkl":
@@ -94,7 +99,7 @@ def get_video_style_clip(video_path, style_max_len, start_idx="random", dtype=to
         face3d_exp = [pkl['fitting_res'][i]['exp'][0] for i in range(len(pkl['fitting_res']))]
     else:
         raise ValueError("Invalid 3DMM file extension")
-
+    #import pdb;pdb.set_trace()
     face3d_exp = torch.tensor(face3d_exp, dtype=dtype)
 
     length = face3d_exp.shape[0]
@@ -214,13 +219,19 @@ def get_pose_params(mat_path):
         pose_params (numpy.ndarray): shape (L_video, 9), angle, translation, crop paramters
     """
     mat_dict = loadmat(mat_path)
-
-    np_3dmm = mat_dict["coeff"]
-    angles = np_3dmm[:, 224:227]
-    translations = np_3dmm[:, 254:257]
-
-    np_trans_params = mat_dict["transform_params"]
-    crop = np_trans_params[:, -3:]
+    if True:
+        np_3dmm = mat_dict['coeff_3dmm']
+        angles = np_3dmm[:,64:67]
+        translations = np_3dmm[:,67:70]
+        crop = np_3dmm[:,70:73]
+    else:
+        np_3dmm = mat_dict["coeff"]
+        angles = np_3dmm[:, 224:227]
+        translations = np_3dmm[:, 254:257]
+        np_trans_params = mat_dict["transform_params"]
+        crop = np_trans_params[:, -3:]
+    
+    #import pdb;pdb.set_trace()
 
     pose_params = np.concatenate((angles, translations, crop), axis=1)
 

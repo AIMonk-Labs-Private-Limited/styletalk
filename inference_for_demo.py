@@ -13,6 +13,7 @@ from src.core.networks.styletalk import StyleTalk
 from src.core.utils import get_audio_window, get_pose_params, get_video_style_clip, obtain_seq_index
 from src.configs.default import get_cfg_defaults
 
+from core.preprocess import CropAndExtract
 
 @torch.no_grad()
 def get_eval_model(cfg):
@@ -118,6 +119,8 @@ def generate_expression_params(
     audio_win = torch.tensor(audio_win).cuda()
     content = content_encoder(audio_win.unsqueeze(0))
 
+    
+    
     style_clip, pad_mask = get_video_style_clip(style_clip_path, style_max_len=256, start_idx=0)
     style_code = style_encoder(
         style_clip.unsqueeze(0).cuda(), pad_mask.unsqueeze(0).cuda() if pad_mask is not None else None
@@ -138,8 +141,9 @@ def generate_expression_params(
     if len(pose) >= len(gen_exp):
         selected_pose = pose[: len(gen_exp)]
     else:
-        selected_pose = torch.from_numpy(pose[-1]).unsqueeze(0).repeat(len(gen_exp), 1)
-        selected_pose[: len(pose)] = torch.from_numpy(pose)
+        pose=torch.from_numpy(pose)
+        selected_pose = pose[-1].unsqueeze(0).repeat(len(gen_exp), 1)
+        selected_pose[: len(pose)] = pose
 
     gen_exp_pose = np.concatenate((gen_exp, selected_pose), axis=1)
     np.save(output_path, gen_exp_pose)
@@ -175,12 +179,23 @@ if __name__ == "__main__":
     # load checkpoint
     with torch.no_grad():
         content_encoder, style_encoder, decoder = get_eval_model(cfg)
-        exp_param_path = f"models/styletalk/1/src/temp_files/output{args.output_path[:-4]}.npy"
+        #import pdb;pdb.set_trace()
+        path_of_lmcropper='/e2/pritish/styletalk/styletalk/checkpoints/shape_predictor_68_face_landmarks.dat'
+        path_of_net_recon_model="/e2/pritish/styletalk/styletalk/checkpoints/epoch_20.pth"
+        dir_of_BFM_fitting="/e2/pritish/styletalk/styletalk/checkpoints/BFM_Fitting"
+        if torch.cuda.is_available():
+            device = "cuda"
+        else:
+            device = "cpu"
+        preprocess_model = CropAndExtract(path_of_lmcropper, path_of_net_recon_model, dir_of_BFM_fitting, device)
+        first_coeff_path, crop_pic_path, crop_info =  preprocess_model.generate(args.style_clip_path, 'output', "crop", source_image_flag=False)   #"crop" or 'full'
+        exp_param_path = f"{args.output_path[:-4]}.npy"
+        print(first_coeff_path)
         generate_expression_params(
             cfg,
             args.audio_path,
-            args.style_clip_path,
-            args.pose_path,
+            first_coeff_path,
+            first_coeff_path,
             exp_param_path,
             content_encoder,
             style_encoder,
