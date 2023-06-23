@@ -12,8 +12,8 @@ import json
 import torch
 from scipy.io import loadmat, savemat
 import pickle
-from util.preprocess import align_img, estimate_norm
-from util.load_mats import load_lm3d
+from src.face3d.util.preprocess import align_img, estimate_norm
+from src.face3d.util.load_mats import load_lm3d
 
 
 def default_flist_reader(flist):

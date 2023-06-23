@@ -13,7 +13,7 @@ See our template dataset class 'template_dataset.py' for more details.
 import numpy as np
 import importlib
 import torch.utils.data
-from face3d.data.base_dataset import BaseDataset
+from src.face3d.data.base_dataset import BaseDataset
 
 
 def find_dataset_using_name(dataset_name):

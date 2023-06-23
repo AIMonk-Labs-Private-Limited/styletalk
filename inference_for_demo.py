@@ -13,7 +13,7 @@ from src.core.networks.styletalk import StyleTalk
 from src.core.utils import get_audio_window, get_pose_params, get_video_style_clip, obtain_seq_index
 from src.configs.default import get_cfg_defaults
 
-from core.preprocess import CropAndExtract
+from src.core.preprocess import CropAndExtract
 
 @torch.no_grad()
 def get_eval_model(cfg):
@@ -180,9 +180,9 @@ if __name__ == "__main__":
     with torch.no_grad():
         content_encoder, style_encoder, decoder = get_eval_model(cfg)
         #import pdb;pdb.set_trace()
-        path_of_lmcropper='/e2/pritish/styletalk/styletalk/checkpoints/shape_predictor_68_face_landmarks.dat'
-        path_of_net_recon_model="/e2/pritish/styletalk/styletalk/checkpoints/epoch_20.pth"
-        dir_of_BFM_fitting="/e2/pritish/styletalk/styletalk/checkpoints/BFM_Fitting"
+        path_of_lmcropper='models/styletalk/1/checkpoints/shape_predictor_68_face_landmarks.dat'
+        path_of_net_recon_model="models/styletalk/1/checkpoints/epoch_20.pth"
+        dir_of_BFM_fitting="models/styletalk/1/checkpoints/BFM_Fitting"
         if torch.cuda.is_available():
             device = "cuda"
         else:

@@ -17,7 +17,7 @@ You need to implement the following functions:
 """
 import numpy as np
 import torch
-from .base_model import BaseModel
+from src.face3d.models.base_model import BaseModel
 from . import networks
 
 

@@ -2,7 +2,7 @@
 """
 
 from .base_options import BaseOptions
-from util import util
+from src.face3d.util import util
 
 class TrainOptions(BaseOptions):
     """This class includes training options.

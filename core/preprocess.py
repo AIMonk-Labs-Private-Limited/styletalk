@@ -4,19 +4,19 @@ from tqdm import tqdm
 from PIL import Image 
 
 # 3dmm extraction
-from face3d.util.preprocess import align_img
-from face3d.util.load_mats import load_lm3d
-from face3d.models import networks
+from src.face3d.util.preprocess import align_img
+from src.face3d.util.load_mats import load_lm3d
+from src.face3d.models import networks
 
 try:
     import webui
-    from face3d.extract_kp_videos_safe import KeypointExtractor
+    from src.face3d.extract_kp_videos_safe import KeypointExtractor
     assert torch.cuda.is_available() == True
 except:
-    from face3d.extract_kp_videos import KeypointExtractor
+    from src.face3d.extract_kp_videos import KeypointExtractor
 
 from scipy.io import loadmat, savemat
-from core.croper import Croper
+from src.core.croper import Croper
 
 import warnings 
 warnings.filterwarnings("ignore")

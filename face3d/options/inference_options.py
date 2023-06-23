@@ -1,4 +1,4 @@
-from face3d.options.base_options import BaseOptions
+from src.face3d.options.base_options import BaseOptions
 
 
 class InferenceOptions(BaseOptions):
