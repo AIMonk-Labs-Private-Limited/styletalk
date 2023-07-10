@@ -57,6 +57,50 @@ class CropAndExtract():
         self.lm3d_std = load_lm3d(dir_of_BFM_fitting)
         self.device = device
     
+    def crop_an_image(self,input_path, save_dir, crop_or_resize='crop'):
+        pic_size = 256
+        pic_name = os.path.splitext(os.path.split(input_path)[-1])[0]    
+        png_path =  os.path.join(save_dir,pic_name+'_cropped.png')  
+
+        #load input
+        
+        if input_path.split('.')[-1] in ['jpg', 'png', 'jpeg']:
+            full_frames = [cv2.imread(input_path)]
+            fps = 25
+        elif not os.path.isfile(input_path):
+            raise ValueError('input_path must be a valid path to image file')
+        else:
+            raise ValueError('input_path must be a valid path to image file')
+
+        x_full_frames= [cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  for frame in full_frames] 
+
+        #### crop images as the 
+        if crop_or_resize.lower() == 'crop': # default crop
+            x_full_frames, crop, quad = self.croper.crop(x_full_frames, still=True, xsize=512)
+            clx, cly, crx, cry = crop
+            lx, ly, rx, ry = quad
+            lx, ly, rx, ry = int(lx), int(ly), int(rx), int(ry)
+            oy1, oy2, ox1, ox2 = cly+ly, cly+ry, clx+lx, clx+rx
+            crop_info = ((ox2 - ox1, oy2 - oy1), crop, quad)
+        elif crop_or_resize.lower() == 'full':
+            x_full_frames, crop, quad = self.croper.crop(x_full_frames, still=True, xsize=512)
+            clx, cly, crx, cry = crop
+            lx, ly, rx, ry = quad
+            lx, ly, rx, ry = int(lx), int(ly), int(rx), int(ry)
+            oy1, oy2, ox1, ox2 = cly+ly, cly+ry, clx+lx, clx+rx
+            crop_info = ((ox2 - ox1, oy2 - oy1), crop, quad)
+        else: # resize mode
+            oy1, oy2, ox1, ox2 = 0, x_full_frames[0].shape[0], 0, x_full_frames[0].shape[1] 
+            crop_info = ((ox2 - ox1, oy2 - oy1), None, None)
+
+        frames_pil = [Image.fromarray(cv2.resize(frame,(pic_size, pic_size))) for frame in x_full_frames]
+        if len(frames_pil) == 0:
+            print('No face is detected in the input file')
+            return None, None
+        for frame in frames_pil:
+            cv2.imwrite(png_path, cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR))
+        return png_path
+
     def generate(self, input_path, save_dir, crop_or_resize='crop', source_image_flag=False):
 
         pic_size = 256
