@@ -57,8 +57,8 @@ class CropAndExtract():
         self.lm3d_std = load_lm3d(dir_of_BFM_fitting)
         self.device = device
     
-    def crop_an_image(self,input_path, save_dir, crop_or_resize='crop'):
-        pic_size = 256
+    def crop_an_image(self,input_path, save_dir, crop_or_resize='crop',pic_size = 256):
+        
         pic_name = os.path.splitext(os.path.split(input_path)[-1])[0]    
         png_path =  os.path.join(save_dir,pic_name+'_cropped.png')  
 
@@ -101,9 +101,9 @@ class CropAndExtract():
             cv2.imwrite(png_path, cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR))
         return png_path
 
-    def generate(self, input_path, save_dir, crop_or_resize='crop', source_image_flag=False):
+    def generate(self, input_path, save_dir, crop_or_resize='crop', source_image_flag=False,pic_size = 256):
 
-        pic_size = 256
+        
         pic_name = os.path.splitext(os.path.split(input_path)[-1])[0]  
 
         landmarks_path =  os.path.join(save_dir, pic_name+'_landmarks.txt') 
