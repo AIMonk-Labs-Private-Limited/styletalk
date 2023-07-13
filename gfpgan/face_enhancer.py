@@ -91,7 +91,7 @@ def enhancer_generator_no_len(images, method='gfpgan', bg_upsampler='realesrgan'
         bg_upsampler = None
 
     # determine model paths
-    model_path = os.path.join('checkpoints/gfpgan', model_name + '.pth')
+    model_path = os.path.join('"models/styletalk/1/checkpoints/gfpgan', model_name + '.pth')
     
     if not os.path.isfile(model_path):
         model_path = os.path.join('checkpoints', model_name + '.pth')
